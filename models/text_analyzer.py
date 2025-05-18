@@ -11,8 +11,8 @@ import numpy as np
 
 class TextAnalyzer:
     def __init__(self, symptom_list):
+        """Initialize the text analyzer with a list of symptoms."""
         self.symptom_list = symptom_list
-        
         self.stopwords = set(stopwords.words('english'))
         self.lemmatizer = WordNetLemmatizer()
         
@@ -27,7 +27,7 @@ class TextAnalyzer:
         self._prepare_symptom_vectors()
     
     def _prepare_symptom_vectors(self):
-
+        """Create TF-IDF vectors for all symptoms."""
         processed_symptoms = [self._preprocess_text(symptom) for symptom in self.symptom_list]
         
         # Create vectorizer and fit to symptom list
@@ -35,6 +35,7 @@ class TextAnalyzer:
         self.symptom_vectors = self.vectorizer.fit_transform(processed_symptoms)
     
     def _preprocess_text(self, text):
+        """Preprocess text by tokenizing, removing stopwords, and lemmatizing."""
         text = text.lower()
         text = [match.replace('_', ' ') for match in text]
         text = ''.join([char for char in text if char not in string.punctuation])
@@ -45,10 +46,11 @@ class TextAnalyzer:
         
         # Lemmatize
         lemmatized = [self.lemmatizer.lemmatize(word) for word in tokens]
-        
+
         return ' '.join(lemmatized)
     
     def _extract_potential_symptoms(self, text):
+        """Extract potential symptom phrases from text."""
         # Preprocess text
         text = text.lower()
         
@@ -123,6 +125,16 @@ class TextAnalyzer:
         return matched_symptoms
     
     def extract_symptoms(self, text, top_n=5):
+        """
+        Extract symptoms from user text.
+        
+        Args:
+            text: User input text
+            top_n: Maximum number of symptoms to return
+            
+        Returns:
+            List of extracted symptoms with confidence scores
+        """
         potential_symptoms = self._extract_potential_symptoms(text)
         matched_symptoms = self.match_symptoms(potential_symptoms)
         
@@ -130,6 +142,15 @@ class TextAnalyzer:
         return matched_symptoms[:top_n]
     
     def direct_keyword_match(self, text):
+        """
+        Directly check if any symptoms from the list appear in the text.
+        
+        Args:
+            text: User input text
+            
+        Returns:
+            List of directly matched symptoms
+        """
         text = text.lower()
         direct_matches = []
         
