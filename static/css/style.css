@@ -41,3 +41,63 @@
     from { opacity: 0; }
     to { opacity: 1; }
 }
+.disease-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.disease-card:hover {
+    border-color: #05a8f7;
+}
+
+.disease-content {
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.disease-content:not(.hidden) {
+    max-height: 500px;
+    opacity: 1;
+    padding-top: 0.75rem;
+    line-height: 1.5;
+}
+
+/* Spinner animation for loading state */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Search box styles */
+#diseasesContainer input[type="text"] {
+    transition: all 0.2s ease;
+}
+
+#diseasesContainer input[type="text"]:focus {
+    border-color: #05a8f7;
+    box-shadow: 0 0 0 2px rgba(5, 168, 247, 0.2);
+}
+
+/* Fade animation for tab content */
+.tab-content {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.tab-content.fade-in {
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .disease-card {
+        padding: 0.75rem;
+    }
+    
+    #diseasesContainer h3 {
+        font-size: 1rem;
+    }
+}

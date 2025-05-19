@@ -121,7 +121,7 @@ function createDiseaseCard(disease) {
     header.appendChild(expandIcon);
     
     const content = document.createElement('div');
-    content.className = 'disease-content mt-2 text-gray-700 text-sm hidden';
+    content.className = 'disease-content mt-2 text-white p-2 text-sm hidden';
     content.textContent = disease.description || 'No description available.';
     
     // Toggle content visibility on header click
