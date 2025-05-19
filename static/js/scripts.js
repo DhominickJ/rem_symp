@@ -64,7 +64,7 @@ function populateDiseasesList(diseases) {
     diseasesContainer.innerHTML = '';
     
     if (!diseases || diseases.length === 0) {
-        diseasesContainer.innerHTML = '<p class="text-gray-400 text-center py-8">No diseases information available.</p>';
+        diseasesContainer.innerHTML = '<p class="bg-dark3 text-gray-400 text-center py-8">No diseases information available.</p>';
         return;
     }
     
@@ -103,7 +103,7 @@ function populateDiseasesList(diseases) {
 // Function to create a disease card
 function createDiseaseCard(disease) {
     const card = document.createElement('div');
-    card.className = 'disease-card bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200';
+    card.className = 'disease-card bg-dark3 border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200';
     card.dataset.disease = disease.disease.toLowerCase();
     
     const header = document.createElement('div');
