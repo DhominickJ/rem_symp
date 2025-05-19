@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REM - Relative Engine for Medical Symptoms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#f76e6e',
+                        secondary: '#03a9f4',
+                        accent: '#f86e6c',
+                        dark: '#0f172a',
+                        dark2: '#1e293b',
+                        dark3: '#334155'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-gray-300 min-h-screen pb-24 font-sans">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-dark border-b border-dark3 shadow-lg p-4">
+        <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold text-primary flex items-center">
+                <img src="logo.svg" alt=""> R.E.M
+            </h1>
+            <button class="text-primary focus:outline-none">
+                <i class="fas fa-user text-lg"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-4">
+        <!-- Home Tab -->
+        <div id="homeTab" class="tab-content active fade-in">
+            <!-- Introduction Card -->
+            <div class="detail-box flex flex-col mb-6 items-center border-white-500">
+                <img src="{{ url_for('static', filename='images/logo.svg')}}" class="w-[20rem]" alt="logo" srcset="">
+                <h2 class="text-2xl font-bold text-primary mb-1 text-white">Welcome to R.E.M</h2>
+                <h3 class="text-lg mb-5 italic"> Relative Engine for Medical Symptoms</h3>
+                <p class="mb-4 text-center">Get insights about your symptoms and possible related conditions.</p>
+                <div class="flex space-x-4">
+                    <div class="flex flex-col rounded-xl bg-[#00567d] justify-center items-center py-5 px-2 text-center">
+                        <i class="fas fa-search text-white mb-2 text-xl"></i>
+                        <p class="text-xs text-wrap w-20">Find related symptoms</p>
+                    </div>
+                    <div class="flex flex-col rounded-xl bg-[#03a9f4] justify-center items-center py-5 px-2 text-center">
+                        <i class="fas fa-comment-medical text-white mb-2 text-xl"></i>
+                        <p class="text-xs text-wrap w-20">Describe your symptoms</p>
+                    </div>
+                    <div class="flex flex-col rounded-xl bg-[#f76e6e] justify-center items-center py-5 px-2 text-center">
+                        <i class="fas fa-chart-line text-white mb-2 text-xl"></i>
+                        <p class="text-xs text-wrap w-20">Track your health</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="symptomTab" class="tab-content p-4">
+            <!-- Symptom Selection Section -->
+                <div class="detail-box flex flex-col items-center">
+                    <div class="section flex flex-col">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-primary bg-opacity-20 rounded-full flex items-center justify-center mx-auto">
+                            <i class="fas fa-temperature-high text-primary text-2xl"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-primary mb-1">Your Symptoms</h2>
+                        <p class="text-gray-400 mb-6 text-sm">Tell us how you feel. We'll guide you through</p>
+                    </div>
+                    <div class="mb-4 flex flex-col items-center">
+                        <label class="block text-sm font-medium mb-2">Select a symptom:</label>
+                        <select id="symptomSelect" class="w-[50vw] text-center p-[5vh] bg-dark3 border border-dark2 text-white rounded-full p-2 focus:ring-1 focus:ring-primary focus:outline-none">
+                            <option value="">-- Symptom --</option>
+                        </select>
+                    </div>
+                    <button id="findRelatedBtn" class="w-full bg-accent text-white font-medium py-2.5 px-4 rounded-lg transition duration-200 flex items-center justify-center ">
+                        <span>Find Related Symptoms</span>
+                    </button>
+
+                    <div id="relatedSymptomsResult" class="mt-4 hidden">
+                        <div id="relatedSymptomsContainer" class="space-y-4">
+                            <div class="pt-3">
+                                <h4 class="font-medium mb-2 text-white flex items-center">
+                                    <i class="fas fa-random mr-2 text-sm text-primary"></i> Co-occurrence Related
+                                </h4>
+                                <div id="cooccurrenceSymptoms" class="related-symptoms flex flex-wrap"></div>
+                                <div id="noCooccurrence" class="text-sm text-gray-400 italic hidden">None found</div>
+                            </div>
+                            
+                            <div class="pt-3">
+                                <h4 class="font-medium mb-2 text-white flex items-center">
+                                    <i class="fas fa-share-alt mr-2 text-sm text-primary"></i> Semantically Related
+                                </h4>
+                                <div id="semanticSymptoms" class="related-symptoms flex flex-wrap"></div>
+                                <div id="noSemantic" class="text-sm text-gray-400 italic hidden">None found</div>
+                            </div>
+                        </div>
+                        <div id="noRelatedFound" class="bg-dark3 p-3 rounded-xl text-sm hidden text-center">
+                            No related symptoms found.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Symptoms Section -->
+                <div class="detail-box flex flex-col items-center justify-center mt-[5rem]">
+                    <h3 class="text-md font-bold text-primary mb-3 flex items-center">
+                        <i class="fas fa-bookmark mr-2"></i> Your Selected Symptoms
+                    </h3>
+                    <div id="selectedSymptomsContainer" class="mb-2">
+                        <p id="noSelectedSymptoms" class="text-gray-400 text-sm italic">No symptoms selected yet. Tap on symptoms above to select them.</p>
+                        <div id="selectedSymptoms" class="selected-symptoms flex flex-wrap"></div>
+                    </div>
+
+                    <div id="selectedSymptomsActions" class="grid grid-cols-2 gap-2 hidden">
+                        <button id="clearSelectedBtn" class="bg-dark3 hover:bg-dark2 border border-dark2 text-gray-300 font-medium py-2 px-4 rounded-lg transition duration-200">
+                            Clear All
+                        </button>
+                        <button id="analyzeSelectedBtn" class="bg-gradient-to-r from-primary to-blue-600 hover:from-primary hover:to-primary text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                            Analyze Selected
+                        </button>
+                    </div>
+
+                    <div id="selectedAnalysisResults" class="mt-4 hidden">
+                        <h4 class="font-medium mb-2 text-white flex items-center">
+                            <i class="fas fa-chart-pie mr-2 text-sm text-primary"></i> Analysis Results
+                        </h4>
+                        <div class="bg-dark3 p-4 rounded-xl">
+                            <h5 class="text-sm font-medium mb-3 text-white">Possible Conditions</h5>
+                            <div id="selectedPossibleDiseases" class="possible-diseases"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story Tab -->
+        <div id="storyTab" class="tab-content p-4">
+            <!-- Text Analysis Section -->
+            <div class="detail-box mb-6 flex flex-col">
+                <div class="section flex flex-col">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-primary bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-book-open text-primary text-2xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-primary mb-1">Your Story</h2>
+                    <p class="text-gray-400 mb-6 text-sm">Tell us your story and we'll try to know what you feel.</p>
+                </div>
+                </div>
+                <div class="mb-4 flex flex-col items-center">
+                    <label class="block text-sm font-medium mb-2 text-lg">How are you feeling?</label>
+                    <textarea id="symptomsText" rows="3" class="w-full bg-dark3 border border-dark2 rounded-lg p-3 text-white focus:ring-1 focus:ring-primary focus:outline-none text-sm" placeholder="Example: I've been having headaches and dizziness for the past few days. My throat feels sore when I swallow."></textarea>
+                </div>
+                <button id="analyzeTextBtn" class="w-full bg-gradient-to-r from-accent to-red-500 hover:from-accent hover:to-accent text-white font-medium py-2.5 px-4 rounded-lg transition duration-200 flex items-center justify-center">
+                    <span>Analyze My Symptoms</span>
+                </button>
+
+                <div id="textAnalysisResult" class="mt-4 hidden">
+                    <div id="extractedSymptomsContainer" class="space-y-4">
+                        <div>
+                            <h4 class="font-medium mb-2 text-white flex items-center">
+                                <i class="fas fa-list-ul mr-2 text-sm text-accent"></i> Extracted Symptoms
+                            </h4>
+                            <div id="extractedSymptoms" class="extracted-symptoms flex flex-wrap"></div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium mb-2 text-white flex items-center">
+                                <i class="fas fa-disease mr-2 text-sm text-accent"></i> Possible Conditions
+                            </h4>
+                            <div id="possibleDiseases" class="possible-diseases"></div>
+                        </div>
+                    </div>
+                    <div id="noSymptomsFound" class="bg-dark3 p-3 rounded-lg text-sm hidden text-center">
+                        No symptoms detected in your description.
+                    </div>
+                </div>
+            </div>
+                
+                <div class="mt-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-medium text-left">Today's Symptoms</h3>
+                        <button class="text-xs text-primary">See all</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-dark3 p-3 rounded-lg text-left">
+                            <div class="flex items-center mb-1">
+                                <div class="w-2 h-2 bg-primary rounded-full mr-2"></div>
+                                <span class="text-xs">Headache</span>
+                            </div>
+                            <div class="text-xs text-gray-400">Mild - 10:45 AM</div>
+                        </div>
+                        <div class="bg-dark3 p-3 rounded-lg text-left">
+                            <div class="flex items-center mb-1">
+                                <div class="w-2 h-2 bg-accent rounded-full mr-2"></div>
+                                <span class="text-xs">Fatigue</span>
+                            </div>
+                            <div class="text-xs text-gray-400">Moderate - 2:30 PM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="historyTab" class="tab-content p-4">
+            <div class="text-center py-4">
+                <div class="w-16 h-16 bg-primary bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-history text-primary text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-primary mb-1">Your History</h2>
+                <p class="text-gray-400 mb-6 text-sm">Review your previous symptom analyses.</p>
+                
+                <div class="space-y-3">
+                    <div class="detail-box text-left">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="font-medium">Headache & Fatigue</h3>
+                            <span class="text-xs text-gray-400">Today, 11:30 AM</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-2">Possible conditions: Migraine, Tension headache</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-dark3 px-2 py-1 rounded-full">Headache</span>
+                            <span class="text-xs bg-dark3 px-2 py-1 rounded-full">Fatigue</span>
+                            <span class="text-xs bg-dark3 px-2 py-1 rounded-full">Nausea</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-box text-left">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="font-medium">Sore Throat</h3>
+                            <span class="text-xs text-gray-400">Yesterday, 5:45 PM</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-2">Possible conditions: Common cold, Strep throat</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-dark3 px-2 py-1 rounded-full">Sore throat</span>
+                            <span class="text-xs bg-dark3 px-2 py-1 rounded-full">Fever</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-box text-left">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="font-medium">Dizziness</h3>
+                            <span class="text-xs text-gray-400">3 days ago, 9:15 AM</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-2">Possible conditions: Dehydration, Vertigo</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-dark3 px-2 py-1 rounded-full">Dizziness</span>
+                            <span class="text-xs bg-dark3 px-2 py-1 rounded-full">Nausea</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diseases Tab -->
+        <div id="diseasesTab" class="tab-content p-4">
+            <div class="">
+                <div class="w-16 h-16 bg-primary bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-disease text-primary text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-primary mb-1 text-center">Disease Information</h2>
+                <p class="text-gray-400 mb-2 text-sm text-center">Learn about conditions and their symptoms.</p>
+                
+                <div id="diseasesContainer" class="mt-4">
+                    <!-- Diseases will be populated here by JavaScript -->
+                    <div class="flex justify-center items-center py-12">
+                        <div class="spinner border-t-4 border-primary h-12 w-12 rounded-full animate-spin"></div>
+                        <span class="ml-3 text-gray-500">Loading diseases database...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 w-full bg-dark border-t border-dark3 shadow-lg">
+        <div class="flex justify-around">
+            <button class="tab-btn py-3 px-2 text-center flex flex-col items-center active" data-tab="homeTab">
+                <i class="fas fa-home text-primary text-lg"></i>
+                <span class="text-xs mt-1 text-primary">Home</span>
+                <div class="w-1.5 h-1.5 bg-primary rounded-full mt-1"></div>
+            </button>
+            <button class="tab-btn py-3 px-2 text-center flex flex-col items-center" data-tab="symptomTab">
+                <i class="fas fa-temperature-high text-gray-400 text-lg"></i>
+                <span class="text-xs mt-1 text-gray-400">Symptoms</span>
+                <div class="w-1.5 h-1.5 bg-transparent rounded-full mt-1"></div>
+            </button>
+            <button class="tab-btn py-3 px-2 text-center flex flex-col items-center" data-tab="storyTab">
+                <i class="fas fa-book-open text-gray-400 text-lg"></i>
+                <span class="text-xs mt-1 text-gray-400">Story</span>
+                <div class="w-1.5 h-1.5 bg-transparent rounded-full mt-1"></div>
+            </button>
+            <button class="tab-btn py-3 px-2 text-center flex flex-col items-center" data-tab="historyTab">
+                <i class="fas fa-history text-gray-400 text-lg"></i>
+                <span class="text-xs mt-1 text-gray-400">History</span>
+                <div class="w-1.5 h-1.5 bg-transparent rounded-full mt-1"></div>
+            </button>
+            <button class="tab-btn py-3 px-2 text-center flex flex-col items-center" data-tab="diseasesTab">
+                <i class="fas fa-disease text-gray-400 text-lg"></i>
+                <span class="text-xs mt-1 text-gray-400">Diseases</span>
+                <div class="w-1.5 h-1.5 bg-transparent rounded-full mt-1"></div>
+            </button>
+        </div>
+    </nav>
+</body>
+<script src="{{ url_for('static', filename='js/scripts.js')}}"></script>
+</html>

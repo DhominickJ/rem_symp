@@ -1,10 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import os
-import json
 from flask_cors import CORS
 
 # Import modules
 from utils.data_processing import DataProcessor
+from utils.disease_processor import DiseaseProcessor
 from models.symptom_similarity import SymptomSimilarity
 from models.text_analyzer import TextAnalyzer
 
@@ -15,10 +15,36 @@ CORS(app)
 data_path = os.path.join(os.path.dirname(__file__), 'dataset', 'dataset.csv')
 data_processor = DataProcessor(data_path)
 
+data_path_diseases = os.path.join(os.path.dirname(__file__), 'dataset', 'diseases.csv')
+disease_processor = DiseaseProcessor(data_path=data_path_diseases)
+
 # Init NLP Models
 symptom_similarity_model = SymptomSimilarity(data_processor.get_all_symptoms())
 text_analyzer = TextAnalyzer(data_processor.get_all_symptoms())
 
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/api/all_symptoms', methods=['POST'])
+def get_all_symptoms():
+    all_symptoms = data_processor.get_all_symptoms()
+    
+    return jsonify({
+        'all_symptoms' : all_symptoms
+    })
+    
+@app.route('/api/diseases', methods=['POST'])
+def get_diseases_w_description():
+    all_diseases_w_descripton = disease_processor.get_all_disease()
+    
+    result = []
+    for disease, description in all_diseases_w_descripton.items():
+        result.append({"disease": disease,
+                       "description": description})
+    
+    return jsonify(result)
+    
 @app.route('/api/related_symptoms', methods=['POST'])
 def get_related_symptoms():
     """Get related symptoms"""
@@ -71,7 +97,7 @@ def analyze_text():
     # If there are direct matches not in extracted symptoms
     for symptom in direct_matches:
         if symptom not in [r['symptom'] for r in results]:
-            results.apend({
+            results.append({
                 'symptom': symptom,
                 'confidence': 1.0,
                 'is_direct_match': True

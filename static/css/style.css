@@ -1,0 +1,43 @@
+@import 'tailwindcss';
+
+.symptom-badge {
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all mb-2;
+}
+.related-symptoms .symptom-badge {
+    @apply bg-opacity-30 bg-primary text-primary border border-primary hover:bg-opacity-50;
+}
+.extracted-symptoms .symptom-badge {
+    @apply bg-opacity-30 bg-accent text-accent border border-accent hover:bg-opacity-50;
+}
+.selected-symptoms .symptom-badge {
+    @apply bg-primary bg-opacity-20 text-white border border-primary;
+}
+.direct-match {
+    @apply bg-opacity-50;
+}
+.disease-item {
+    @apply mb-3 p-4 rounded-xl bg-dark2 border border-dark3;
+}
+.detail-box {
+    @apply bg-dark3 p-4 rounded-xl mb-4 border border-primary;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+.spinner {
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
