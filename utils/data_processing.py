@@ -1,6 +1,5 @@
 # Data Processing for NLP Models
 
-#Importing pre-processing tools
 import pandas as pd
 import numpy as np
 from collections import defaultdict
@@ -9,7 +8,6 @@ import re
 
 class DataProcessor:
     def __init__(self, data_path):
-        # Initialize the important data with the path to the dataset file
         self.data_path = data_path  
         self.df = None
         self.symptom_list = []
@@ -26,11 +24,9 @@ class DataProcessor:
         
         self.df = pd.read_csv(self.data_path)
         
-        #Containers for the data
         all_symptom = []
         cleaned_dataframe = []
         
-        #Extracting unique symptoms for preprocessing
         symptom_columns = [col for col in self.df.columns if col.startswith('Symptom_')]
 
         
@@ -62,15 +58,14 @@ class DataProcessor:
             
             self.disease_symptom_map[disease] = symptoms
             
-            # Create symptoms-disease mapping for each symptom in this row
             for symptom in symptoms:
                 if symptom not in self.symptom_disease_map[symptom]:
                     self.symptom_disease_map[symptom].append(disease)
         
         # Debug output to verify mappings
-        print(f"Total unique symptoms: {len(self.symptom_list)}")
-        print(f"Total diseases mapped: {len(self.disease_symptom_map)}")
-        print(f"Total symptoms with disease mappings: {len(self.symptom_disease_map)}")
+        # print(f"Total unique symptoms: {len(self.symptom_list)}")
+        # print(f"Total diseases mapped: {len(self.disease_symptom_map)}")
+        # print(f"Total symptoms with disease mappings: {len(self.symptom_disease_map)}")
         
         self._create_cooccurence_matrix()
     
@@ -79,14 +74,12 @@ class DataProcessor:
         n = len(self.symptom_list)
         symptom_index = {symptom: i for i, symptom in enumerate(self.symptom_list)}
         
-        # Initialize a co-occurence matrix
         self.symptom_cooccurence = np.zeros((n, n))
         
-        # Fill the co-occurence matrix
         for disease, symptoms in self.disease_symptom_map.items():
             for i, symptom1 in enumerate(symptoms):
                 idx1 = symptom_index.get(symptom1)
-                if idx1 is not None: # Ensuring symptom is within the list
+                if idx1 is not None: 
                     for symptom2 in symptoms:
                         if symptom1 != symptom2:
                             idx2 = symptom_index.get(symptom2)
@@ -117,7 +110,6 @@ class DataProcessor:
             
             return related_symptoms
         except KeyError:
-            # If symptom is not found in the dataset
             return []
     
     def get_possible_diseases(self, symptoms, limit=8):

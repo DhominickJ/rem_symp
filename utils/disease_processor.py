@@ -1,6 +1,4 @@
 # Disease Processing for the WebApp
-
-# Importing pre-processing tools
 import pandas as pd
 import numpy as np
 import os

@@ -83,7 +83,6 @@ class SymptomSimilarity:
         if isinstance(symptoms, str):
             symptoms = [symptoms]
 
-        # Find indices for valid symptoms in the list
         indices = [self.symptom_list.index(s) for s in symptoms if s in self.symptom_list]
         if not indices:
             return []
