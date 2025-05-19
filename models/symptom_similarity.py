@@ -14,17 +14,6 @@ class SymptomSimilarity:
         self.vectorizer = None
         self.symptom_vectors = None
 
-        # Initialize NLTK resources
-        try:
-            nltk.data.find('corpora/stopwords')
-            nltk.data.find('corpora/wordnet')
-            nltk.data.find('taggers/averaged_perceptron_tagger_eng')
-        except LookupError:
-            nltk.download('averaged_perceptron_tagger_eng')
-            nltk.download('stopwords')
-            nltk.download('wordnet')
-            nltk.download('punkt')
-
         self.stopwords = set(stopwords.words('english'))
         self.lemmatizer = WordNetLemmatizer()
 
@@ -32,17 +21,15 @@ class SymptomSimilarity:
         self._preprocess_symptoms()
 
     def _preprocess_text(self, text):
-        """Preprocess text by tokenizing, removing stopwords, and lemmatizing."""
-        # Convert to lowercase and remove punctuation
+        """Preprocess text by tokenizing, removing stopwords, and lemmatizing"""
         text = text.lower()
-        text = [match.replace('_', ' ') for match in text]
         text = ''.join([char for char in text if char not in string.punctuation])
 
-        # Tokenize and remove stopwords
+        # Remove stopwords and tokenize
         tokens = nltk.word_tokenize(text)
         tokens = [word for word in tokens if word not in self.stopwords]
 
-        # Lemmatize
+        # Lemmatization purposes
         lemmatized = [self.lemmatizer.lemmatize(word) for word in tokens]
 
         return ' '.join(lemmatized)
@@ -83,6 +70,16 @@ class SymptomSimilarity:
         return top_symptoms
 
     def get_similar_symptoms(self, symptoms, top_n=5):
+        """Find symptoms similar to a given symptom.
+            
+            Args: 
+                symptom: Target symptom
+                top_n: Number of similar symptoms to return
+                
+            Returns:
+                List of top symptom based on top_n
+            
+        """
         if isinstance(symptoms, str):
             symptoms = [symptoms]
 
