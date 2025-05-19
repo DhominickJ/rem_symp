@@ -20,6 +20,7 @@ class NLTKLoader:
             "wordnet": "corpora/wordnet",
             "stopwords": "corpora/stopwords",
             "averaged_perceptron_tagger": "taggers/averaged_perceptron_tagger",
+            "averaged_perceptron_tagger_eng": "taggers/averaged_perceptron_tagger_eng",
             "punkt_tab" : "tokenizers/punkt_tab"
         }
 
