@@ -168,6 +168,22 @@ document.getElementById('clearSelectedBtn').addEventListener('click', function()
     updateSelectedSymptomsUI();
 });
 
+// Function to create a symptom badge
+function createSymptomBadge(text, containerId, tooltip = '') {
+    const badge = document.createElement('div');
+    badge.className = 'symptom-badge';
+    badge.textContent = text;
+    
+    if (tooltip) {
+        badge.title = tooltip;
+    }
+    
+    // Add click handler to toggle selection
+    badge.addEventListener('click', () => toggleSelectedSymptom(text));
+    
+    document.getElementById(containerId).appendChild(badge);
+}
+
 // Function to display related symptoms from API response
 function displayRelatedSymptoms(symptom, apiData) {
     // Clear previous results
@@ -303,22 +319,6 @@ function displayPossibleDiseases(diseases, containerId) {
         
         document.getElementById(containerId).appendChild(item);
     });
-}
-
-// Function to create a symptom badge
-function createSymptomBadge(text, containerId, type, tooltip = '') {
-    const badge = document.createElement('div');
-    badge.className = 'symptom-badge';
-    badge.textContent = text;
-    
-    if (tooltip) {
-        badge.title = tooltip;
-    }
-    
-    // Add click handler to toggle selection
-    badge.addEventListener('click', () => toggleSelectedSymptom(text));
-    
-    document.getElementById(containerId).appendChild(badge);
 }
 
 // Function to toggle a symptom in selected list

@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     } catch (error) {
         console.error('Error loading diseases data:', error);
     }
+    renderHistory();
 });
 
 // Function to populate the diseases list in the diseases tab
@@ -241,7 +242,15 @@ document.querySelectorAll('.tab-btn').forEach(button => {
         const tab = document.getElementById(tabId);
         tab.classList.add('active');
         setTimeout(() => tab.classList.add('fade-in'), 10);
+
+        const symptomBasket = document.getElementById('symptomBasket');
+        if (tabId === 'storyTab' || tabId === 'symptomTab') {
+            symptomBasket.classList.remove('hidden');
+        } else {
+            symptomBasket.classList.add('hidden');
+        }
     });
+
 });
 
 // Store selected symptoms
@@ -421,7 +430,7 @@ function displayRelatedSymptoms(symptom, apiData) {
 function displayExtractedSymptoms(apiData) {
     // Clear previous results
     document.getElementById('extractedSymptoms').innerHTML = '';
-    document.getElementById('possibleDiseases').innerHTML = '';
+    // document.getElementById('possibleDiseases').innerHTML = '';
     
     if (apiData && apiData.extracted_symptoms && apiData.extracted_symptoms.length > 0) {
         // Display extracted symptoms
@@ -434,12 +443,12 @@ function displayExtractedSymptoms(apiData) {
             );
         });
         
-        // Display possible diseases if any
-        if (apiData.possible_diseases && Object.keys(apiData.possible_diseases).length > 0) {
-            displayPossibleDiseases(apiData.possible_diseases, 'possibleDiseases');
-        } else {
-            document.getElementById('possibleDiseases').innerHTML = '<p class="text-gray-400 text-sm">No associated conditions found.</p>';
-        }
+        // // Display possible diseases if any
+        // if (apiData.possible_diseases && Object.keys(apiData.possible_diseases).length > 0) {
+        //     displayPossibleDiseases(apiData.possible_diseases, 'possibleDiseases');
+        // } else {
+        //     document.getElementById('possibleDiseases').innerHTML = '<p class="text-gray-400 text-sm">No associated conditions found.</p>';
+        // }
         
         document.getElementById('extractedSymptomsContainer').classList.remove('hidden');
         document.getElementById('noSymptomsFound').classList.add('hidden');
@@ -457,10 +466,24 @@ function displaySelectedAnalysisResults(apiData) {
     // Clear previous results
     document.getElementById('selectedPossibleDiseases').innerHTML = '';
     
-    if (apiData && apiData.possible_diseases && Object.keys(apiData.possible_diseases).length > 0) {
-        displayPossibleDiseases(apiData.possible_diseases, 'selectedPossibleDiseases');
+    console.log('Received apiData:', apiData); // Debug log
+    
+    // Check if apiData and possible_diseases exist and have content
+    if (apiData && apiData.possible_diseases) {
+        const conditionNames = Object.keys(apiData.possible_diseases);
+        saveToHistory(Array.from(selectedSymptoms), conditionNames);
+        console.log('Possible diseases:', apiData.possible_diseases); // Debug log
+        
+        // Check if the possible_diseases object has any properties
+        if (Object.keys(apiData.possible_diseases).length > 0) {
+            displayPossibleDiseases(apiData.possible_diseases, 'selectedPossibleDiseases');
+        } else {
+            document.getElementById('selectedPossibleDiseases').innerHTML = 
+                '<p class="text-gray-400 text-sm">No associated conditions found.</p>';
+        }
     } else {
-        document.getElementById('selectedPossibleDiseases').innerHTML = '<p class="text-gray-400 text-sm">No associated conditions found.</p>';
+        document.getElementById('selectedPossibleDiseases').innerHTML = 
+            '<p class="text-gray-400 text-sm">No associated conditions found.</p>';
     }
     
     // Show results container
@@ -520,7 +543,7 @@ function createSymptomBadge(text, containerId, type, tooltip = '') {
     const badge = document.createElement('div');
     
     // Apply different styling based on the type
-    if (type === 'related') {
+    if (type === 'related' || type === 'extracted') {
         // Bubble-like design with primary background and white text for related symptoms
         badge.className = 'symptom-badge bg-primary text-white rounded-full px-4 py-2 m-1 inline-block cursor-pointer transition-transform hover:scale-105';
     } else {
@@ -538,6 +561,96 @@ function createSymptomBadge(text, containerId, type, tooltip = '') {
     badge.addEventListener('click', () => toggleSelectedSymptom(text));
     
     document.getElementById(containerId).appendChild(badge);
+}
+
+function saveToHistory(symptoms, conditions) {
+    const history = JSON.parse(localStorage.getItem('symptomHistory') || '[]');
+
+    const timestamp = new Date();
+    const entry = {
+        symptoms,
+        conditions,
+        timestamp: timestamp.toISOString()
+    };
+
+    history.unshift(entry); // Add to the top
+    localStorage.setItem('symptomHistory', JSON.stringify(history));
+
+    renderHistory(); // Update the UI immediately
+}
+
+function renderHistory() {
+    const historyContainer = document.getElementById('historyContainer');
+    const historyList = document.createElement('div');
+    historyList.className = 'space-y-3';
+
+    const history = JSON.parse(localStorage.getItem('symptomHistory') || '[]');
+
+    if (!history.length) {
+        historyContainer.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No symptom history available.</p>';
+        return;
+    }
+
+    history.forEach(entry => {
+        const { symptoms, conditions, timestamp } = entry;
+        const date = new Date(timestamp);
+        const formattedTime = formatRelativeTime(date);
+
+        const detailBox = document.createElement('div');
+        detailBox.className = 'detail-box text-left';
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'flex justify-between items-start mb-1';
+
+        const title = document.createElement('h3');
+        title.className = 'font-medium';
+        title.textContent = symptoms.join(' & ');
+
+        const time = document.createElement('span');
+        time.className = 'text-xs text-gray-400';
+        time.textContent = formattedTime;
+
+        titleDiv.appendChild(title);
+        titleDiv.appendChild(time);
+
+        const conditionText = document.createElement('p');
+        conditionText.className = 'text-xs text-gray-400 mb-2';
+        conditionText.textContent = conditions && conditions.length > 0
+            ? `Possible conditions: ${conditions.join(', ')}`
+            : 'No associated conditions found.';
+
+        const tagsDiv = document.createElement('div');
+        tagsDiv.className = 'flex flex-wrap gap-1';
+        symptoms.forEach(sym => {
+            const tag = document.createElement('span');
+            tag.className = 'text-xs bg-dark3 px-2 py-1 rounded-full';
+            tag.textContent = sym;
+            tagsDiv.appendChild(tag);
+        });
+
+        detailBox.appendChild(titleDiv);
+        detailBox.appendChild(conditionText);
+        detailBox.appendChild(tagsDiv);
+
+        historyList.appendChild(detailBox);
+    });
+
+    historyContainer.innerHTML = ''; // Clear old content
+    historyContainer.appendChild(historyList);
+}
+
+function formatRelativeTime(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    if (diffDays === 0) return `Today, ${timeStr}`;
+    if (diffDays === 1) return `Yesterday, ${timeStr}`;
+    return `${diffDays} days ago, ${timeStr}`;
 }
 
 // Function to toggle a symptom in selected list

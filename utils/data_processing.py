@@ -55,16 +55,22 @@ class DataProcessor:
             
         self.symptom_list = sorted(list(set(all_symptom)))
         
-        # Mapping the diseases to symptoms
-        for _, row, in self.df.iterrows():
+        # Mapping the diseases to symptoms and symptoms to diseases
+        for _, row in self.df.iterrows():
             disease = row['Disease']
             symptoms = [row[col] for col in symptom_columns if pd.notna(row[col])]
             
             self.disease_symptom_map[disease] = symptoms
             
-        # Create symptoms-disease mapping
-        for symptom in symptoms:
-            self.symptom_disease_map[symptom].append(disease)
+            # Create symptoms-disease mapping for each symptom in this row
+            for symptom in symptoms:
+                if symptom not in self.symptom_disease_map[symptom]:
+                    self.symptom_disease_map[symptom].append(disease)
+        
+        # Debug output to verify mappings
+        print(f"Total unique symptoms: {len(self.symptom_list)}")
+        print(f"Total diseases mapped: {len(self.disease_symptom_map)}")
+        print(f"Total symptoms with disease mappings: {len(self.symptom_disease_map)}")
         
         self._create_cooccurence_matrix()
     
@@ -116,7 +122,6 @@ class DataProcessor:
     
     def get_possible_diseases(self, symptoms, limit=8):
         """
-        
         Get possible diseases based on a list of symptoms.
         
         Args:
@@ -127,11 +132,16 @@ class DataProcessor:
         """
         
         disease_scores = defaultdict(int)
+        matched_symptoms_per_disease = defaultdict(list)
         
         for symptom in symptoms:
-            for disease in self.symptom_disease_map.get(symptom, []):
-                # Increase the score for each matching symptom
+            # Debug: print symptom and any diseases it maps to
+            diseases_for_symptom = self.symptom_disease_map.get(symptom, [])
+            # print(f"Symptom '{symptom}' maps to {len(diseases_for_symptom)} diseases: {diseases_for_symptom[:3]}...")
+            
+            for disease in diseases_for_symptom:
                 disease_scores[disease] += 1
+                matched_symptoms_per_disease[disease].append(symptom)
                 
                 # Bonus points if the disease has most of these symptoms
                 disease_symptoms = self.disease_symptom_map.get(disease, [])

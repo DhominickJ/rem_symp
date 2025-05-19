@@ -30,12 +30,3 @@ class DiseaseProcessor:
     def get_all_disease(self):
         return self.disease_dict
     
-data_path = os.path.join('dataset', 'diseases.csv')
-full_path = os.path.abspath(data_path)
-print(full_path)
-diseaseprocessor = DiseaseProcessor(data_path)
-print(diseaseprocessor.load_and_process_data())
-disease = diseaseprocessor.get_all_disease()
-
-for disease, descrtiption in disease.items():
-    print(f"{disease} : {descrtiption}")

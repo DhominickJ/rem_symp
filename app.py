@@ -69,22 +69,27 @@ def get_related_symptoms():
         'semantic_related': semantic_symptoms
     })
 
+
 @app.route('/api/analyze_text', methods=['POST'])
 def analyze_text():
     """Analyze user text and extract symptoms"""
     data = request.json
     text = data.get('text')
+    
+    print(f"Analyzing text: {text}")
 
     if not text:
         return jsonify({'error': 'No TEXT provided'}), 400
     
     # Extract symptoms from text
     extracted_symptoms = text_analyzer.extract_symptoms(text, top_n=10)
+    print(f"Extracted symptoms with scores: {extracted_symptoms}")
 
     # Check for direct keywords
     direct_matches = text_analyzer.direct_keyword_match(text)
+    print(f"Direct matches: {direct_matches}")
 
-    # Comibne the results
+    # Combine the results
     results = []
     for symptom, score in extracted_symptoms:
         result = {
@@ -103,16 +108,51 @@ def analyze_text():
                 'is_direct_match': True
             })
     
+    print(f"Combined symptom results: {results}")
+    
     possible_diseases = {}
+    disease_details = []
+    
     if results:
+        # Get list of identified symptoms
         extracted_symptom_names = [r['symptom'] for r in results]
+        
+        print(f"Sending symptoms to get_possible_diseases: {extracted_symptom_names}")
+        
+        # Get possible diseases from data processor
         disease_scores = data_processor.get_possible_diseases(extracted_symptom_names)
-        for disease, score in disease_scores.items():
-            possible_diseases[disease] = float(score)
+        
+        print(f"Received disease scores (percentages): {disease_scores}")
+        
+        # Get all disease descriptions
+        all_diseases_with_descriptions = disease_processor.get_all_disease()
+        
+        # Process each disease with its score and add description
+        for disease, percentage in disease_scores.items():
+            possible_diseases[disease] = float(percentage)
+            
+            # Get description for this disease if available
+            description = all_diseases_with_descriptions.get(disease, "No description available")
+            
+            # Format the percentage to 1 decimal place
+            formatted_percentage = f"{percentage:.1f}%"
+            
+            disease_details.append({
+                "disease": disease,
+                "score": float(percentage),  # Raw score for sorting
+                "score_display": formatted_percentage,  # Formatted for display
+                "description": description
+            })
+        
+        # Sort diseases by score in descending order
+        disease_details = sorted(disease_details, key=lambda x: x["score"], reverse=True)
+        
+        print(f"Final disease details: {disease_details[:3]}...")  # Show first 3 for brevity
 
     return jsonify({
         'extracted_symptoms': results,
-        'possible_diseases': possible_diseases
+        'possible_diseases': possible_diseases,
+        'disease_details': disease_details
     })
 
 @app.route('/api/test_get', methods=['GET'])
