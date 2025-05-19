@@ -4,3 +4,4 @@ nltk
 flask
 flask-cors
 pandas
+gunicorn
