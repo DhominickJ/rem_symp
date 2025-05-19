@@ -7,9 +7,13 @@ from utils.data_processing import DataProcessor
 from utils.disease_processor import DiseaseProcessor
 from models.symptom_similarity import SymptomSimilarity
 from models.text_analyzer import TextAnalyzer
+from utils.install import NLTKLoader
 
 app = Flask(__name__)
 CORS(app)
+
+# Install NLTK requirements once and only ONCE!
+NLTKLoader.setup_nltk_once()
 
 # Initialize data processor
 data_path = os.path.join(os.path.dirname(__file__), 'dataset', 'dataset.csv')
