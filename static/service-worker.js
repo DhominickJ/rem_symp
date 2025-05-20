@@ -1,8 +1,8 @@
 const CACHE_NAME = 'flask-pwa-v1';
 const urlsToCache = [
   '/',
-  '/static/styles/main.css',
-  '/static/scripts/main.js',
+  '/static/css/style.css',
+  '/static/js/scripts.js',
   '/static/manifest.json'
 ];
 
