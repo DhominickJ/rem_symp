@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 import os
 from flask_cors import CORS
 
@@ -25,6 +25,10 @@ disease_processor = DiseaseProcessor(data_path=data_path_diseases)
 # Init NLP Models
 symptom_similarity_model = SymptomSimilarity(data_processor.get_all_symptoms())
 text_analyzer = TextAnalyzer(data_processor.get_all_symptoms())
+
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('static', 'manifest.json', mimetype='application/manifest+json')
 
 @app.route('/')
 def home():
